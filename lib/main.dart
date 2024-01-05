@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'pages/main_page.dart';
+import 'pages/favorite_page.dart';
+import 'pages/calendar_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,20 +42,25 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     Widget title;
+    Widget body;
 
     // 根據選擇的索引顯示相應的頁面
     switch (_selectedIndex) {
       case 0:
         title = Text('日曆');
+        body = CalendarPage();
         break;
       case 1:
         title = Text('今日照片');
+        body = MainPage();
         break;
       case 2:
-        title = Text('設定');
+        title = Text('最愛');
+        body = FavoritesPage();
         break;
       default:
         title = Text('未知');
+        body = MainPage();
     }
 
     return Scaffold(
@@ -62,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         title: title,
       ),
-      body: MainPage(),
+      body: body,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -76,9 +83,9 @@ class _MyHomePageState extends State<MyHomePage> {
             tooltip: '點擊這裡返回首頁',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '設定',
-            tooltip: '前往設定',
+            icon: Icon(Icons.favorite),
+            label: '最愛',
+            tooltip: '前往我的最愛',
           ),
         ],
         currentIndex: _selectedIndex, // 當前選中的索引
