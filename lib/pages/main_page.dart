@@ -14,15 +14,20 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
+enum NoteType { editable, text }
 
 class _MainPageState extends State<MainPage> {
-  bool _isFavorited = false; // 添加一個狀態變量來追蹤是否被點擊
-
+  // 添加一個狀態變量來追蹤是否被點擊
+  bool _isFavorited = false;
   void _toggleFavorite() {
     setState(() {
       _isFavorited = !_isFavorited; // 在每次點擊時切換狀態
     });
   }
+
+  // 用來控制文本欄的控制器
+  final TextEditingController _controller = TextEditingController();
+  NoteType _noteType = NoteType.editable;
 
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
 
@@ -30,6 +35,77 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     _fetchDailyApodData(); // 在頁面生成時取得APOD 資訊
     super.initState();
+  }
+
+  Widget _buildTextInputOrText(BuildContext context) {
+    if (_noteType == NoteType.text) {
+      // 如果是顯示文本模式
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal:16.0), // 在水平方向上增加間隔
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(right: 16.0), // 右邊增加間隔
+                padding: const EdgeInsets.all(16.0),
+                child: Text(_controller.text),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(color: Colors.grey), // 添加灰色實線邊框
+                ),
+              ),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  _noteType = NoteType.editable; // 切換回可編輯模式
+                });
+              },
+              child: const Icon(Icons.edit),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // 如果是可編輯模式
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0), // 在水平方向上增加間隔
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(right: 16.0), // 右邊增加間隔
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: '請輸入留言...', // 提供提示文本
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: EdgeInsets.all(16),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey), // 設置灰色實線邊框
+                    ),
+                  ),
+                  maxLines: 5,
+                  minLines: 3,
+                ),
+              ),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  _noteType = NoteType.text; // 切換到文本模式
+                });
+              },
+              child: const Icon(Icons.save),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<ApodData?> _fetchDailyApodData() async {
@@ -162,6 +238,8 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 30),
+                      _buildTextInputOrText(context), // 調用上面定義的方法
                       SizedBox(height: 50),
                     ]
                 )
@@ -173,5 +251,12 @@ class _MainPageState extends State<MainPage> {
         }
       )// This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  @override
+  void dispose() {
+    // 銷毀控制器
+    _controller.dispose();
+    super.dispose();
   }
 }
