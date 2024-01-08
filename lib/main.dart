@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 2:
         title = Text('最愛');
-        body = FavoritesPage();
+        body = FavoritePage();
         break;
       default:
         title = Text('未知');

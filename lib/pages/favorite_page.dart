@@ -1,42 +1,56 @@
-// lib/pages/main_page.dart
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:apod/widget/astro_picture.dart';
 
-import '../model/ApodData.dart';
-import '../keys/api_key.dart';
 
-class FavoritesPage extends StatefulWidget {
-  FavoritesPage();
+class FavoritePage extends StatefulWidget {
+  const FavoritePage({super.key});
 
   @override
-  _MainPageState createState() => _MainPageState();
+  State<FavoritePage> createState() => _FavoritePageState();
 }
 
-
-class _MainPageState extends State<FavoritesPage> {
+class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          height: 100,
-          padding: const EdgeInsets.all(5.0),
-          child: const Expanded(
-            child: Card(
-                elevation: 5.0,
-                child: Center(
-                  child: Text(
-                    'I am Image Title',
-                    style: TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                )),
-          ),
-        );
-      },
-      itemCount: 2,
+    return Center(
+      child: ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+            height: 100,
+            padding: const EdgeInsets.all(5.0),
+            child: SizedBox(
+              height: 100,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Scaffold(
+                        appBar: AppBar(
+                          title: const Text('one of the title'),
+                        ),
+                        body: const AstroPicture(
+                          title: 'title of astro picture',
+                          url: 'https://apod.nasa.gov/apod/image/2401/CatsEye_HubblePohl_960.jpg',
+                          desc: 'desc',
+                          note: "don't know what to fill yet",
+                          isFavorite: false,
+                        ));
+                  }));
+                },
+                child: const Card(
+                    elevation: 5.0,
+                    child: Center(
+                      child: Text(
+                        'I am Image Title',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                    )),
+              ),
+            ),
+          );
+        },
+        itemCount: 2,
+      ),
     );
   }
 }
