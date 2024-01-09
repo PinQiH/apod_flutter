@@ -1,11 +1,4 @@
-// lib/pages/main_page.dart
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-import '../model/ApodData.dart';
-import '../keys/api_key.dart';
 
 class CalendarPage extends StatefulWidget {
   CalendarPage();

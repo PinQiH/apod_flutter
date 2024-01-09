@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../model/ApodData.dart';
+import '../model/favorite_state.dart';
 
 // 定義頁面筆記模式
 enum NoteType {
@@ -7,44 +11,25 @@ enum NoteType {
 }
 
 class AstroPicture extends StatefulWidget {
-  final String title; // 標題
-  final String url; // 圖片來源
-  final String desc; // 圖片描述
-  final String note; // 手札
-  final bool isFavorite; // 是否收藏
+  final ApodData apodData;
 
-  const AstroPicture(
-    {
-      super.key,
-      required this.title,
-      required this.url,
-      required this.desc,
-      required this.isFavorite,
-      this.note = '', // 非必要，若沒有手札紀錄預設為空字串
-    }
-  ); // 非必要，預設為非收藏的圖片
+  const AstroPicture({super.key, required this.apodData});
 
   @override
   State<AstroPicture> createState() => _AstroPictureState();
 }
 
 class _AstroPictureState extends State<AstroPicture> {
-  // 添加一個狀態變量來追蹤是否被點擊
-  bool _isFavorited = false;
-  void _toggleFavorite() {
-    setState(() {
-      _isFavorited = !_isFavorited; // 在每次點擊時切換狀態
-    });
-  }
-
   // 用來控制文本欄的控制器
   final TextEditingController _controller = TextEditingController();
   NoteType _noteType = NoteType.editable;
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    _controller.text = widget.note;
+    _controller.text = widget.apodData.note;
+    _isFavorite = widget.apodData.isFavorite;
   }
 
   @override
@@ -124,6 +109,23 @@ class _AstroPictureState extends State<AstroPicture> {
     }
   }
 
+  void addToFavorite(context, ApodData apodData) {
+    apodData.isFavorite = true;
+    Provider.of<FavoriteState>(context, listen: false)
+        .addToList(apodData); // 透過proivder.of直接調用FavoriteState的方法
+    setState(() {
+      _isFavorite = true;
+    });
+  }
+
+  void removeFromFavorite(context, ApodData apodData) {
+    apodData.isFavorite = false;
+    Provider.of<FavoriteState>(context, listen: false).removeFromList(apodData);
+    setState(() {
+      _isFavorite = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView (
@@ -137,7 +139,7 @@ class _AstroPictureState extends State<AstroPicture> {
                       minHeight: MediaQuery.of(context).size.width, // 將容器的最小高度設為螢幕寬度
                     ),
                     child: Image.network(
-                      widget.url,
+                      widget.apodData.url,
                       fit: BoxFit.cover,
                       loadingBuilder:(
                           BuildContext context,
@@ -178,7 +180,7 @@ class _AstroPictureState extends State<AstroPicture> {
                     right: 0.0, // 右邊對齊
                     child: Center( // Center 確保文字水平中心對齊
                       child: Text(
-                        widget.title, // 這裡放置您的標題文字
+                        widget.apodData.title, // 這裡放置您的標題文字
                         style: TextStyle(
                           fontSize: 24.0, // 字體大小
                           color: Colors.white, // 字體顏色
@@ -197,11 +199,14 @@ class _AstroPictureState extends State<AstroPicture> {
                     bottom: 10.0, // 相對上方距離10.0
                     right: 10.0, // 相對右方距離10.0
                     child: IconButton(
-                      onPressed: _toggleFavorite,
+                      onPressed: () {
+                        _isFavorite == false
+                            ? addToFavorite(context, widget.apodData)
+                            : removeFromFavorite(context, widget.apodData);
+                      },
                       icon: Icon(
                         Icons.favorite,
-                        // 根據 _isFavorited 狀態來設置顏色
-                        color: _isFavorited ? Theme.of(context).colorScheme.primary : Colors.white,
+                        color: _isFavorite ? Theme.of(context).colorScheme.primary : Colors.white,
                       ),
                       iconSize: 30.0, // 設置圖標大小
                     ),
@@ -212,7 +217,7 @@ class _AstroPictureState extends State<AstroPicture> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0), // 水平方向左右各添加16單位的內邊距
                 child: Text(
-                  widget.desc,
+                  widget.apodData.desc,
                   style: TextStyle(
                     fontSize: 12,
                     height: 2,
